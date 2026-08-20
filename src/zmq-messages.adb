@@ -55,6 +55,8 @@ package body ZMQ.Messages is
          raise ZMQ_Error with Error_Message (GNAT.OS_Lib.Errno) & " in " &
            GNAT.Source_Info.Enclosing_Entity;
       end if;
+
+      Self.Is_Valid := True;
    end Initialize;
 
    --  ========================================================================
@@ -103,6 +105,8 @@ package body ZMQ.Messages is
          raise ZMQ_Error with Error_Message (GNAT.OS_Lib.Errno) & " in " &
            GNAT.Source_Info.Enclosing_Entity;
       end if;
+
+      Self.Is_Valid := True;
    end Initialize;
 
 
@@ -268,10 +272,13 @@ package body ZMQ.Messages is
    procedure Finalize (Self : in out Message) is
       Ret : int;
    begin
-      Ret := Low_Level.zmq_msg_close (Self.Msg'Access);
-      if Ret /= 0 then
-         raise ZMQ_Error with Error_Message (GNAT.OS_Lib.Errno) & " in " &
-           GNAT.Source_Info.Enclosing_Entity;
+      if Self.Is_Valid then
+         Ret := Low_Level.zmq_msg_close (Self.Msg'Access);
+         Self.Is_Valid := False;
+         if Ret /= 0 then
+            raise ZMQ_Error with Error_Message (GNAT.OS_Lib.Errno) & " in " &
+              GNAT.Source_Info.Enclosing_Entity;
+         end if;
       end if;
    end Finalize;
 

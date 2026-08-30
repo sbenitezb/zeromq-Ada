@@ -35,6 +35,12 @@ package ZMQ.Errors is
    --  Returns the last set error value.
    --  This is a task local variable.
 
+   function Last_Error_Message
+     (Default : String  := "") return String;
+   --  Return a message describing the last error. If none is provided
+   --  by the system, return Default if not empty, else return a generic
+   --  message indicating the numeric errno value.
+
    procedure Set_Last_Error (Error : Integer);
    --  Stores Error as last error in a task local variable.
 

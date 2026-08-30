@@ -2,9 +2,9 @@
 --                                                                           --
 --                             0MQ Ada-binding                               --
 --                                                                           --
---                           Z M Q . P R O X Y S                             --
+--                                   Z M Q                                   --
 --                                                                           --
---                                  B o d y                                  --
+--                                  S p e c                                  --
 --                                                                           --
 --            Copyright (C) 2020-2030, per.s.sandberg@bahnhof.se             --
 --                                                                           --
@@ -29,30 +29,19 @@
 --  OTHER DEALINGS IN THE SOFTWARE.                                          --
 -------------------------------------------------------------------------------
 
-with ZMQ.Low_Level;
-with Interfaces.C; use Interfaces.C;
-with System; use System;
+package ZMQ.Errors is
 
-with ZMQ.Errors;
+   function Get_Last_Error return Integer;
+   --  Returns the last set error value.
+   --  This is a task local variable.
 
-package body ZMQ.Proxys is
---
------------
--- Proxy --
------------
+   procedure Set_Last_Error (Error : Integer);
+   --  Stores Error as last error in a task local variable.
 
-   procedure Proxy
-     (Frontend  : not null access Sockets.Socket;
-      Backend   : not null access Sockets.Socket;
-      Capture   : access Sockets.Socket := null)
-   is
-      Dummy : int;
-      pragma Unreferenced (Dummy);
-   begin
-      Dummy := ZMQ.Low_Level.zmq_proxy
-        (Frontend.Get_Impl, Backend.Get_Impl,
-         (if Capture /= null then Capture.Get_Impl else System.Null_Address));
-      ZMQ.Errors.Set_To_Errno;
-   end Proxy;
+   procedure Set_To_Errno;
+   --  Stores the current C errno global variable as last error in a task local
+   --  variable.
 
-end ZMQ.Proxys;
+   pragma Inline (Get_Last_Error, Set_Last_Error, Set_To_Errno);
+
+end ZMQ.Errors;

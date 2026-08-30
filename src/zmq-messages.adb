@@ -35,6 +35,9 @@ with GNAT.OS_Lib;
 with GNAT.Source_Info;
 with Ada.Unchecked_Conversion;
 with System.Address_To_Access_Conversions;
+
+with ZMQ.Errors;
+
 package body ZMQ.Messages is
    use Interfaces.C;
 
@@ -51,7 +54,10 @@ package body ZMQ.Messages is
       else
          Ret := Low_Level.zmq_msg_init (Self.Msg'Access);
       end if;
+
       if Ret /= 0 then
+         ZMQ.Errors.Set_To_Errno;
+
          raise ZMQ_Error with Error_Message (GNAT.OS_Lib.Errno) & " in " &
            GNAT.Source_Info.Enclosing_Entity;
       end if;
@@ -102,6 +108,8 @@ package body ZMQ.Messages is
                                           Free,
                                           Hint);
       if Ret /= 0 then
+         ZMQ.Errors.Set_To_Errno;
+
          raise ZMQ_Error with Error_Message (GNAT.OS_Lib.Errno) & " in " &
            GNAT.Source_Info.Enclosing_Entity;
       end if;
@@ -275,7 +283,10 @@ package body ZMQ.Messages is
       if Self.Is_Valid then
          Ret := Low_Level.zmq_msg_close (Self.Msg'Access);
          Self.Is_Valid := False;
+
          if Ret /= 0 then
+            ZMQ.Errors.Set_To_Errno;
+
             raise ZMQ_Error with Error_Message (GNAT.OS_Lib.Errno) & " in " &
               GNAT.Source_Info.Enclosing_Entity;
          end if;

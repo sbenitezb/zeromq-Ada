@@ -2,9 +2,9 @@
 --                                                                           --
 --                             0MQ Ada-binding                               --
 --                                                                           --
---                           Z M Q . P R O X Y S                             --
+--                                   Z M Q                                   --
 --                                                                           --
---                                  B o d y                                  --
+--                                  S p e c                                  --
 --                                                                           --
 --            Copyright (C) 2020-2030, per.s.sandberg@bahnhof.se             --
 --                                                                           --
@@ -29,30 +29,40 @@
 --  OTHER DEALINGS IN THE SOFTWARE.                                          --
 -------------------------------------------------------------------------------
 
-with ZMQ.Low_Level;
-with Interfaces.C; use Interfaces.C;
-with System; use System;
+with Ada.Task_Attributes;
+with GNAT.OS_Lib;
 
-with ZMQ.Errors;
+package body ZMQ.Errors is
 
-package body ZMQ.Proxys is
---
------------
--- Proxy --
------------
+   package Local_Error_Attr is new Ada.Task_Attributes
+     (Attribute     => Integer,
+      Initial_Value => 0);
 
-   procedure Proxy
-     (Frontend  : not null access Sockets.Socket;
-      Backend   : not null access Sockets.Socket;
-      Capture   : access Sockets.Socket := null)
-   is
-      Dummy : int;
-      pragma Unreferenced (Dummy);
+   --------------------
+   -- Get_Last_Error --
+   --------------------
+
+   function Get_Last_Error return Integer is
    begin
-      Dummy := ZMQ.Low_Level.zmq_proxy
-        (Frontend.Get_Impl, Backend.Get_Impl,
-         (if Capture /= null then Capture.Get_Impl else System.Null_Address));
-      ZMQ.Errors.Set_To_Errno;
-   end Proxy;
+      return Local_Error_Attr.Value;
+   end Get_Last_Error;
 
-end ZMQ.Proxys;
+   --------------------
+   -- Set_Last_Error --
+   --------------------
+
+   procedure Set_Last_Error (Error : Integer) is
+   begin
+      Local_Error_Attr.Set_Value (Error);
+   end Set_Last_Error;
+
+   ------------------
+   -- Set_To_Errno --
+   ------------------
+
+   procedure Set_To_Errno is
+   begin
+      Local_Error_Attr.Set_Value (GNAT.OS_Lib.Errno);
+   end Set_To_Errno;
+
+end ZMQ.Errors;

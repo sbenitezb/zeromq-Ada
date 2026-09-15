@@ -203,7 +203,7 @@ package body ZMQ.Contexts is
    not overriding
    function Get_IPv6 (This : in out Context) return Boolean is
    begin
-      return Get_Or_Raise (This, Low_Level.Defs.ZMQ_MAX_SOCKETS) = 1;
+      return Get_Or_Raise (This, Low_Level.Defs.ZMQ_IPV6) = 1;
    end Get_IPv6;
 
 

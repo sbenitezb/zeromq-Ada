@@ -51,10 +51,9 @@ package body ZMQ.Errors is
    -- Last_Error_Message --
    ------------------------
 
-   function Last_Error_Message
-     (Default : String  := "") return String is
+   function Last_Error_Message return String is
    begin
-      return GNAT.OS_Lib.Errno_Message (Get_Last_Error, Default);
+      return ZMQ.Error_Message (Get_Last_Error);
    end Last_Error_Message;
 
    --------------------
